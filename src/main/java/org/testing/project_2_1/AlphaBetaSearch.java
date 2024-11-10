@@ -4,16 +4,16 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-
 // TODO: this is just CoPilot code, not the actual implementation
 public class AlphaBetaSearch implements Agent {
-    private boolean isWhite;
     private GameLogic gameLogic;
     private int maxDepth;
     private int nodesVisited;
     private int nodesEvaluated;
     private int maxPruned;
     private int minPruned;
+    private boolean isWhite;
+
 
     public AlphaBetaSearch(int maxDepth) {
         this.maxDepth = maxDepth;
@@ -99,6 +99,5 @@ public class AlphaBetaSearch implements Agent {
     public boolean isWhite() {
         return isWhite;
     }
-    
     
 }
