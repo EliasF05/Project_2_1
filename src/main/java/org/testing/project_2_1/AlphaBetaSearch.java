@@ -1,10 +1,12 @@
 package org.testing.project_2_1;
 
+import javafx.animation.PauseTransition;
+import javafx.util.Duration;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-// TODO: this is just CoPilot code, not the actual implementation
 public class AlphaBetaSearch implements Agent {
     private GameLogic gameLogic;
     private int maxDepth;
@@ -27,30 +29,9 @@ public class AlphaBetaSearch implements Agent {
     public void makeMove() {
         nodesVisited = 0;
         nodesEvaluated = 0;
-        maxPruned = 0;
-        minPruned = 0;
-        System.out.println("AlphaBeta agent making move");
-        Move bestMove = alphaBetaSearch(maxDepth);
-        gameLogic.takeTurn(bestMove);
-    }
-
-    public Move alphaBetaSearch(int depth) {
-        nodesVisited++;
-        Double alpha = Double.MIN_VALUE;
-        Double beta = Double.MAX_VALUE;
-        Move bestMove = null;
-        Double bestValue = Double.MIN_VALUE;
-        ArrayList<Move> legalMoves = gameLogic.getLegalMoves();
-        for (Move move : legalMoves) {
-            gameLogic.takeTurn(move);
-            Double value = minValue(alpha, beta, depth - 1);
-            if (value > bestValue) {
-                bestValue = value;
-                bestMove = move;
-            }
-            gameLogic.undoLastMove();
-        }
-        return bestMove;
+        System.out.println("Alpha-Beta agent making move");
+        PauseTransition pause = new PauseTransition(Duration.seconds(Agent.delay));
+        // TODO: search algorithm implementation to finish, working on it...
     }
 
     public double maxValue(Double alpha, Double beta, int depth) {
