@@ -83,10 +83,7 @@ public class Board {
 
     public boolean movePiece(Move move) {
         Piece piece = board[move.getFromX()][move.getFromY()].getPiece();
-        if (move.isInvalid()) {
-            piece.abortMove();
-            return false;
-        }
+        
         movesPlayed.add(move);
         if (move.isTurnEnding()) {
             isWhiteTurn = !isWhiteTurn;
@@ -98,8 +95,18 @@ public class Board {
             Capture capture = (Capture) move;
             Piece capturedPiece = board[capture.getCapturedPiece().getX()][capture.getCapturedPiece().getY()].getPiece();
             board[capturedPiece.getX()][capturedPiece.getY()].setPiece(null);
+            removeCapturedPiece(capturedPiece);
         }
         return true;
+    }
+
+    private void removeCapturedPiece(Piece piece){
+        if (piece.type.color.equals("white")) {
+            whitePieces.remove(piece);
+        }
+        else {
+            blackPieces.remove(piece);
+        }
     }
 
     public Tile[][] undoMove(Move move){
