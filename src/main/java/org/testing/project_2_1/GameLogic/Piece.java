@@ -28,6 +28,12 @@ public class Piece {
         this.pieceDrawer = pieceDrawer;
     }
 
+    public void abortMove() {
+        if (pieceDrawer != null) {
+            pieceDrawer.abortMove();
+        }
+    }
+
     public void movePiece(Move move){
         x = move.getToX();
         y = move.getToY();

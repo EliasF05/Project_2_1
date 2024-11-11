@@ -167,7 +167,7 @@ public class CheckersApp extends Application {
             new CheckersApp(gameLogic.agent, gameLogic.opponent);
         }
 
-        for (Tile[] row : gameLogic.board) {
+        for (Tile[] row : gameLogic.b) {
             for (Tile tile : row) {
                 tileGroup.getChildren().add(tile.tileDrawer);
                 if (tile.hasPiece()) {
@@ -184,7 +184,7 @@ public class CheckersApp extends Application {
     }
 
     public void addPiecestoBoard(Pane boardPane) {
-        for (Tile[] row : gameLogic.board) {
+        for (Tile[] row : gameLogic.b) {
             for (Tile tile : row) {
                 tileGroup.getChildren().add(tile.tileDrawer);
                 if (tile.hasPiece()) {

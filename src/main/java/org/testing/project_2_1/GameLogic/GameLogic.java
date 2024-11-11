@@ -19,15 +19,7 @@ public class GameLogic {
     public CheckersApp app;
     public Agent agent;
     public Agent opponent;
-    public Board b;
-    public Tile[][] board;
-    public MoveLogic moveLogic;
-    public boolean isWhiteTurn = b.getIsWhiteTurn();
-    public static ArrayList<Piece> whitePieces;
-    public static ArrayList<Piece> blackPieces;
-    public ArrayList<Move> movesPlayed;
-    public ArrayList<Turn> turnsPlayed;
-    
+    public Board b;    
 
     public GameLogic(CheckersApp app) {
         this.agent = null;
@@ -53,18 +45,11 @@ public class GameLogic {
     public void setStandardValues(CheckersApp app) {
         this.app = app;
         this.b = new Board();
-        this.board = new Board().getBoard();
-        this.moveLogic = new MoveLogic(b);
-        whitePieces = b.getWhitePieces();
-        blackPieces = b.getBlackPieces();
-        isWhiteTurn = b.getIsWhiteTurn();
-        movesPlayed = new ArrayList<Move>();
-        turnsPlayed = new ArrayList<Turn>();
         new Pane();
     }
 
-    public boolean isGameOver(){
-        if (whitePieces.size() == 0 || blackPieces.size() == 0) {
+    public boolean isGameOver(Board board){
+        if (board.getWhitePieces().size() == 0 || board.getBlackPieces().size() == 0) {
             return true;
         }
         return false;
@@ -74,87 +59,40 @@ public class GameLogic {
         setStandardValues(app);
     }
 
-    private void switchTurn() {
+    private void switchTurn(Board board) {
         System.out.println();
 
-        if (isWhiteTurn) {
+        if (board.isWhiteTurn) {
             System.out.println("White's turn");
         }
         else {
             System.out.println("Black's turn");
         }
         printAvailableCaptures();
-        if (agent != null && agent.isWhite() == isWhiteTurn) {
+        if (agent != null && agent.isWhite() == board.isWhiteTurn) {
             agent.makeMove();
         }
-        if (opponent != null && opponent.isWhite() == isWhiteTurn) {
+        if (opponent != null && opponent.isWhite() == board.isWhiteTurn) {
             opponent.makeMove();
         }
     }
 
-    public ArrayList<Move> getAvailableCaptures() {
-        // TODO: improve complexity: improved to O(n^3)/2 from O(n^3)
+    public ArrayList<Move> getAvailableCaptures(Board b) {
         ArrayList<Move> availableCaptures = new ArrayList<>();
         ArrayList<Piece> pieces = getListOfPieces();
         for (Piece piece : pieces) {
-            for (int row = 0; row < board.length; row++) {
-                int startCol = (row % 2 == 0) ? 1 : 0;
-                for (int col = startCol; col < board.length; col += 2){
-                    Move move = moveLogic.determineMoveType(piece, row, col);
-                    if (move.getType() == MoveType.CAPTURE) {
-                        Capture capture = (Capture) move;
-                        availableCaptures.add(capture);
-                    }
-                }
-            }
+            availableCaptures.addAll(getAvailableCaptures(piece, b));
         }
         return availableCaptures;
     }
 
-    public ArrayList<Move> getAvailableCaptures(MoveLogic moveLogic) {
-        Tile[][] board = moveLogic.getBoard();
+    public ArrayList<Move> getAvailableCaptures(Piece piece, Board b) {
         // TODO: improve complexity
         ArrayList<Move> availableCaptures = new ArrayList<>();
-        ArrayList<Piece> pieces = getListOfPieces();
-        for (Piece piece : pieces) {
-            for (int row = 0; row < board.length; row++) {
-                int startCol = (row % 2 == 0) ? 1 : 0;
-                for (int col = startCol; col < board.length; col += 2){
-                    Move move = moveLogic.determineMoveType(piece, row, col);
-                    if (move.getType() == MoveType.CAPTURE) {
-                        Capture capture = (Capture) move;
-                        availableCaptures.add(capture);
-                    }
-                }
-            }
-        }
-        return availableCaptures;
-    }
-
-    public ArrayList<Move> getAvailableCaptures(Piece piece) {
-        // TODO: improve complexity
-        ArrayList<Move> availableCaptures = new ArrayList<>();
-        for (int row = 0; row < board.length; row++) {
+        for (int row = 0; row < b.board.length; row++) {
             int startCol = (row % 2 == 0) ? 1 : 0;
-            for (int col = startCol; col < board.length; col += 2){
-                Move move = moveLogic.determineMoveType(piece, row, col);
-                if (move.getType() == MoveType.CAPTURE) {
-                    Capture capture = (Capture) move;
-                    availableCaptures.add(capture);
-                }
-            }
-        }
-        return availableCaptures;
-    }
-
-    public ArrayList<Move> getAvailableCaptures(Piece piece, MoveLogic moveLogic) {
-        Tile[][] board = moveLogic.getBoard();
-        // TODO: improve complexity
-        ArrayList<Move> availableCaptures = new ArrayList<>();
-        for (int row = 0; row < board.length; row++) {
-            int startCol = (row % 2 == 0) ? 1 : 0;
-            for (int col = startCol; col < board.length; col += 2){
-                Move move = moveLogic.determineMoveType(piece, row, col);
+            for (int col = startCol; col < b.board.length; col += 2){
+                Move move = b.determineMoveType(piece, row, col);
                 if (move.getType() == MoveType.CAPTURE) {
                     Capture capture = (Capture) move;
                     availableCaptures.add(capture);
@@ -269,9 +207,9 @@ public class GameLogic {
         else {
             for (Piece piece : pieces) {
                 //TODO: instead of iterating over all black tiles, iterate over all tiles where the piece can move
-                for (int row = 0; row < board.length; row++) {
+                for (int row = 0; row < b.length; row++) {
                     int startCol = (row % 2 == 0) ? 1 : 0;
-                    for (int col = startCol; col < board.length; col += 2){
+                    for (int col = startCol; col < b.length; col += 2){
                         Move move = moveLogic.determineMoveType(piece, row, col);
                         if (move.getType() == MoveType.NORMAL) {
                             availableMoves.add(move);
@@ -316,9 +254,9 @@ public class GameLogic {
             availableMoves = getAvailableCaptures(piece);
         }
         else {
-            for (int row = 0; row < board.length; row++) {
+            for (int row = 0; row < b.length; row++) {
                 int startCol = (row % 2 == 0) ? 1 : 0;
-                for (int col = startCol; col < board.length; col += 2){
+                for (int col = startCol; col < b.length; col += 2){
                     Move move = moveLogic.determineMoveType(piece, row, col);
                     if (capturesAvailable && move.getType() == MoveType.CAPTURE) {
                         availableMoves.add(move);
@@ -357,54 +295,31 @@ public class GameLogic {
         return availableMoves;
     }
 
-    public boolean hasAvailableCaptures(){
-        if (getAvailableCaptures().size() > 0) {
+    public boolean hasAvailableCaptures(Board b){
+        if (getAvailableCaptures(b).size() > 0) {
             return true;
         }
         return false;
     }
 
-    public boolean hasAvailableCaptures(MoveLogic moveLogic){
-        if (getAvailableCaptures(moveLogic).size() > 0) {
-            return true;
-        }
-        return false;
-    }
-
-    public boolean hasAvailableCaptures(Piece piece){
-        if (getAvailableCaptures(piece).size() > 0) {
+    public boolean hasAvailableCaptures(Piece piece, Board b){
+        if (getAvailableCaptures(piece, b).size() > 0) {
             return true;
 
         }
         return false;
     }
 
-    public boolean hasAvailableCaptures(Piece piece, MoveLogic moveLogic){
-        if (getAvailableCaptures(piece, moveLogic).size() > 0) {
-            return true;
-        }
-        return false;
-    }
-
-    public void printAvailableCaptures(){
-        System.out.println("available captures: " + getAvailableCaptures().size());
-        for (Move move : getAvailableCaptures()) {
+    public void printAvailableCaptures(Board b){
+        ArrayList<Move> availablecaptures = getAvailableCaptures(b);
+        System.out.println("Nuber of available captures: " + availablecaptures.size());
+        for (Move move : availablecaptures) {
             System.out.println(move.toString());
         }
     }
 
-    public ArrayList<Piece> getListOfPieces() {
-        if (isWhiteTurn) {
-            return whitePieces;
-        }
-        else {
-            return blackPieces;
-        }
-    }
-
-    public ArrayList<Piece> getListOfPieces(MoveLogic moveLogic) {
-        Board b = moveLogic.getBoardObj();
-        if (isWhiteTurn) {
+    public ArrayList<Piece> getListOfPieces(Board b) {
+        if (b.isWhiteTurn) {
             return b.getWhitePieces();
         }
         else {
@@ -412,11 +327,11 @@ public class GameLogic {
         }
     }
 
-    public boolean takeTurn(Turn turn){
-        turnsPlayed.add(turn);
+    public boolean takeTurn(Turn turn, Board b){
+        b.turnsPlayed.add(turn);
         LinkedList<Move> moves = turn.getMoves();
-        while (!moves.isEmpty()) {
-            if (!takeMove(moves.removeFirst())) {
+        for (Move move : moves) {
+            if (!takeMove(move)) {
                 return false;
             }
         }
@@ -477,7 +392,7 @@ public class GameLogic {
     }
 
     private void movePiece(Move move) {
-        Piece piece = board[move.getFromX()][move.getFromY()].getPiece();
+        Piece piece = b[move.getFromX()][move.getFromY()].getPiece();
         int oldX = move.getFromX();
         int oldY = move.getFromY();
         int newX = move.getToX();
@@ -488,9 +403,9 @@ public class GameLogic {
                 break;
             case NORMAL:
                 movesPlayed.add(move);
-                board[oldX][oldY].setPiece(null);
-                board[newX][newY].setPiece(piece);
-                board[newX][newY].getPiece().movePiece(move);
+                b[oldX][oldY].setPiece(null);
+                b[newX][newY].setPiece(piece);
+                b[newX][newY].getPiece().movePiece(move);
                 break;
             case CAPTURE:
                 movesPlayed.add(move);
@@ -505,11 +420,11 @@ public class GameLogic {
                     app.capturedPiecesTracker.capturePiece("Player 1");
                 }
                 
-                board[oldX][oldY].setPiece(null);
-                board[newX][newY].setPiece(piece);
-                board[newX][newY].getPiece().movePiece(move);
+                b[oldX][oldY].setPiece(null);
+                b[newX][newY].setPiece(piece);
+                b[newX][newY].getPiece().movePiece(move);
                 Piece otherPiece = capture.getCapturedPiece();
-                board[otherPiece.getX()][otherPiece.getY()].setPiece(null);
+                b[otherPiece.getX()][otherPiece.getY()].setPiece(null);
                 app.pieceGroup.getChildren().remove(otherPiece.getPieceDrawer());
                 break;
         }
@@ -633,8 +548,8 @@ public class GameLogic {
         Piece piece = move.getPiece();
         if (move.getType() == MoveType.NORMAL) {
             piece.undoMove(move);
-            board[move.getToX()][move.getToY()].setPiece(null);
-            board[move.getFromX()][move.getFromY()].setPiece(piece);
+            b[move.getToX()][move.getToY()].setPiece(null);
+            b[move.getFromX()][move.getFromY()].setPiece(piece);
             movesPlayed.remove(move);
         }
         else if (move.isCapture()) {
@@ -649,9 +564,9 @@ public class GameLogic {
                 app.capturedPiecesTracker.decrementBlackCaptured();
             }
             piece.undoMove(move);
-            board[move.getToX()][move.getToY()].setPiece(null);
-            board[move.getFromX()][move.getFromY()].setPiece(piece);
-            board[capturedPiece.getX()][capturedPiece.getY()].setPiece(capturedPiece);
+            b[move.getToX()][move.getToY()].setPiece(null);
+            b[move.getFromX()][move.getFromY()].setPiece(piece);
+            b[capturedPiece.getX()][capturedPiece.getY()].setPiece(capturedPiece);
             app.pieceGroup.getChildren().add(capturedPiece.getPieceDrawer());
             movesPlayed.remove(move);
         }
@@ -663,7 +578,7 @@ public class GameLogic {
     }
 
     public double evaluateTurn(Turn turn) {
-        Board b0 = new Board(board, isWhiteTurn);
+        Board b0 = new Board(b, isWhiteTurn);
         MoveLogic m0 = new MoveLogic(b0);
         LinkedList<Move> moves = turn.getMoves();
         for (Move move : moves) {
